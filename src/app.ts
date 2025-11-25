@@ -1,27 +1,26 @@
-import express from 'express';
-import { config } from 'dotenv';
-import healthRouter from './routes/health.router.js';
-import todosRouter from './routes/todos.router.js';
+import express, { Request, Response } from "express";
+import todoRouter from "./todo.routers.ts/todo.router.js";
+import categoryRouter from "./todo.routers.ts/category.router.js";
+import { setupSwagger } from "./swagger.js";
+import cors from "cors";
 
-config();
-
-export function buildApp() {
+export function MainApp() {
     const app = express();
 
+    app.use(cors());
     app.use(express.json());
-    app.use('/health', healthRouter);
-    app.use('/api/todos', todosRouter);
-
-    // 404
-    app.use((_req: express.Request, res: express.Response) => {
-        res.status(404).json({ error: 'Not Found' });
+    
+    app.get("/", (req: Request, res: Response) => {
+        res.send("Hello word");
     });
 
-    // Ошибки
-    app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    });
+    //contollers
+    app.use("/api/todo", todoRouter)
+    app.use("/api/category", categoryRouter)
+    setupSwagger(app);
+
+    //errors
 
     return app;
 }
+
